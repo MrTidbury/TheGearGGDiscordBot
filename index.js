@@ -34,25 +34,79 @@ client.on('message', msg => {
       break;
     case 'status':
       ServerUtil.getServerStatus((success, info) => {
-        console.log(info)
         if (success) {
+          console.log(info)
           MessageUtil.sendStatusMessage(client, msg, info)
         } else {
-          MessageUtil.sendApiErrorMessage(client, msg, info)
+          MessageUtil.sendApiErrorMessage(msg, info)
         }
       })
       break;
     case 'stop':
-      msg.reply('stop command init...')
+      msg.channel.send('Attempting to Stop Server.')
+      // Start by geting the current status of the server...
+      ServerUtil.getServerStatus((success, info) => {
+        if (success) {
+          if (info.running) {
+            ServerUtil.stopServer((success) => {
+                if (success) {
+                  MessageUtil.stoppedServer(msg)
+                } else {
+                  // Catch the error...
+                  MessageUtil.sendApiErrorMessage(msg, info)
+                }
+            })
+          } else {
+              MessageUtil.sendServerAlreadyOff(msg)
+          }
+
+        } else {
+          // Catch the error...
+          MessageUtil.sendApiErrorMessage(msg, info)
+        }
+      })
       break;
     case 'start':
-      msg.reply('start command init...')
+      MessageUtil.sendStartingMessage(msg)
+      // Start by geting the current status of the server...
+      ServerUtil.getServerStatus((success, info) => {
+        if (success) {
+          if (!info.running) {
+            ServerUtil.startServer((success) => {
+                if (success) {
+                  // We started the server, but takes some time to boot...
+
+                  // Create a function to check for serer status...
+                  function checkupdate() {
+                    ServerUtil.getServerStatus((success, serverInfo) => {
+                      MessageUtil.sendStatusMessage(client, msg, serverInfo)
+                    })
+                  }
+
+                  // 6 seconds shoulod be long enough for it to boot up...
+                  setTimeout(checkupdate, 6000);
+
+                } else {
+                  // Catch the error...
+                  MessageUtil.sendApiErrorMessage(msg, info)
+                }
+            })
+          } else {
+              MessageUtil.sendServerAlreadyOn(msg)
+              MessageUtil.sendStatusMessage(client, msg, info)
+          }
+
+        } else {
+          // Catch the error...
+          MessageUtil.sendApiErrorMessage(msg, info)
+        }
+      })
       break;
     case 'ping':
       msg.reply('pong')
       break;
     default:
-      msg.reply('you made a fucky wucky..')
+      msg.reply(`you made a fucky wucky command not supported. \n*${Config.prefix} help* to list commands`)
   }
 });
 

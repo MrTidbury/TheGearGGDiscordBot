@@ -32,44 +32,78 @@ module.exports.sendHelpMessage = function(client, message){
 }
 
 module.exports.sendStatusMessage = function(client, message, serverInfo) {
-
   // The server is not currently running so just send a simple message...
-  if (!serverInfo.running) {
+  if (!serverInfo.running && !serverInfo.booting) {
     message.channel.send(`Looks like the server is not currently on, you can start it using *${Config.prefix} start*`)
     return
   }
 
-  message.channel.send(
-    {
-      embed:
-        {
-          color: 3447003,
-          title: `${serverInfo.name}`,
-          description: `Below you can find the current status of the ${serverInfo.name} CSGO server.`,
-          fields: [
-            {
-              name: `Players Online`,
-              value: `There are currently ${serverInfo.currentPlayers} players online.`
-            },
-            {
-              name: `Current Map`,
-              value: `Current map is ${serverInfo.currentMap}.`
-            },
-            {
-              name: "Connect to server",
-              value: `Paste the following into your server *connect ${serverInfo.ip}; password ${serverInfo.password}*`
-            },
-          ],
-          timestamp: new Date(),
-          footer: {
-            icon_url: client.user.avatarURL,
-            text: "© Jack Tidbury (tidbury.io)"
-          }
-      }
-    });
+  if (serverInfo.booting) {
+    message.channel.send(
+      {
+        embed:
+          {
+            color: 3447003,
+            title: `${serverInfo.name}`,
+            description: `The Server is currently Booting and should be ready in approx 10 seconds.`,
+            timestamp: new Date(),
+            footer: {
+              icon_url: client.user.avatarURL,
+              text: "© Jack Tidbury (tidbury.io)"
+            }
+        }
+      });
+  } else {
+    message.channel.send(
+      {
+        embed:
+          {
+            color: 3447003,
+            title: `${serverInfo.name}`,
+            description: `Below you can find the current status of the ${serverInfo.name} CSGO server.`,
+            fields: [
+              {
+                name: `Players Online`,
+                value: `There are currently ${serverInfo.currentPlayers} players online.`
+              },
+              {
+                name: `Current Map`,
+                value: `Current map is ${serverInfo.currentMap}.`
+              },
+              {
+                name: "Connect to server",
+                value: `Paste the following into your server \n*connect ${serverInfo.ip}; password ${serverInfo.password}*`
+              },
+            ],
+            timestamp: new Date(),
+            footer: {
+              icon_url: client.user.avatarURL,
+              text: "© Jack Tidbury (tidbury.io)"
+            }
+        }
+      });
+  }
+
+
 }
 
-module.exports.sendApiErrorMessage = function(client, message, error){
+module.exports.sendStartingMessage = function(message){
+  message.channel.send('Attempting to start server')
+}
+
+module.exports.sendServerAlreadyOn = function(message){
+  message.channel.send('Looks like the server is alredy running')
+}
+
+module.exports.stoppedServer = function(message){
+  message.channel.send('Successfully stopped the server. Thanks for keeping down the costs :)')
+}
+
+module.exports.sendServerAlreadyOff = function(message){
+  message.channel.send('Looks like the server is alredy stopped')
+}
+
+module.exports.sendApiErrorMessage = function(message, error){
   message.channel.send(str(error))
   message.channel.send('Oh, something went wrong when communicating with the DatHost Api please pester <@269430456095735808> to fix :)')
 }

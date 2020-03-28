@@ -22,14 +22,14 @@ module.exports.getServerStatus = function(callback) {
     // we always want to know if it is running...
     let serverDetails = {
       running: data.on,
-      name: data.name
+      name: data.name,
+      booting: data.booting
     }
 
     // If the server is running then lets add some more shit boi...
     if (data.on){
       serverDetails.ip = `${data.custom_domain}:${data.ports.game}`
       serverDetails.password = data.csgo_settings.password
-
       // The data.staus comes in a really anoyying data struct, lets sort that now...
       data.status.forEach(stautsDict => {
         if (stautsDict.key == 'Players online'){
@@ -42,5 +42,27 @@ module.exports.getServerStatus = function(callback) {
 
     // Fire the Callback to pass this data to the calling function...
     callback(true, serverDetails);
+  });
+}
+
+// Function to start the server...
+module.exports.startServer = function(callback) {
+  Request(`${BaseApiUrl}/start`, { method: "POST", auth: { user: Config.dathost_username, pass: Config.dathost_psw}}, (error, response, body) => {
+      if (!error && response.statusCode == 200) {
+        callback(true)
+      } else {
+        callback(false)
+      }
+  });
+}
+
+// Function to stop the server...
+module.exports.stopServer = function(callback) {
+  Request(`${BaseApiUrl}/stop`, { method: "POST", auth: { user: Config.dathost_username, pass: Config.dathost_psw}}, (error, response, body) => {
+      if (!error && response.statusCode == 200) {
+        callback(true)
+      } else {
+        callback(false)
+      }
   });
 }
