@@ -81,7 +81,7 @@ module.exports.sendStatusMessage = function(client, message, serverInfo) {
             color: 3447003,
             title: `${serverInfo.name}`,
             description: `Below you can find the current status of the ${serverInfo.name} CSGO server.`,
-            fields: serverFields
+            fields: serverFields,
             timestamp: new Date(),
             footer: {
               icon_url: client.user.avatarURL,
