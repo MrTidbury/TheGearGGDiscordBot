@@ -54,6 +54,26 @@ module.exports.sendStatusMessage = function(client, message, serverInfo) {
         }
       });
   } else {
+
+    let serverFields = [{
+        name: "Connect to server",
+        value: `Paste the following into your server \n*connect ${serverInfo.ip}; password ${serverInfo.password}*`
+      }]
+
+    if (serverInfo.currentMap){
+      serverFields.unshift({
+        name: `Current Map`,
+        value: `Current map is ${serverInfo.currentMap}.`
+      })
+    }
+
+    if (serverInfo.currentPlayers){
+      serverFields.unshift({
+        name: `Players Online`,
+        value: `There are currently ${serverInfo.currentPlayers} players online.`
+      })
+    }
+
     message.channel.send(
       {
         embed:
@@ -61,20 +81,7 @@ module.exports.sendStatusMessage = function(client, message, serverInfo) {
             color: 3447003,
             title: `${serverInfo.name}`,
             description: `Below you can find the current status of the ${serverInfo.name} CSGO server.`,
-            fields: [
-              {
-                name: `Players Online`,
-                value: `There are currently ${serverInfo.currentPlayers} players online.`
-              },
-              {
-                name: `Current Map`,
-                value: `Current map is ${serverInfo.currentMap}.`
-              },
-              {
-                name: "Connect to server",
-                value: `Paste the following into your server \n*connect ${serverInfo.ip}; password ${serverInfo.password}*`
-              },
-            ],
+            fields: serverFields
             timestamp: new Date(),
             footer: {
               icon_url: client.user.avatarURL,
